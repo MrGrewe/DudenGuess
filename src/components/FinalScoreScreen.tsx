@@ -1,6 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trophy } from 'lucide-react';
+import { useEffect } from 'react';
+import { playWinSound } from '@/utils/sounds';
 import type { Player } from '@/types/game';
 
 interface FinalScoreScreenProps {
@@ -12,6 +14,10 @@ interface FinalScoreScreenProps {
 const FinalScoreScreen = ({ players, totalRounds, onRestart }: FinalScoreScreenProps) => {
   const sorted = [...players].sort((a, b) => b.score - a.score);
   const winner = sorted[0];
+
+  useEffect(() => {
+    playWinSound();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-warm p-4">
