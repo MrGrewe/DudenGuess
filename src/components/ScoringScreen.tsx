@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, ArrowRight, Star } from 'lucide-react';
+import { playClickSound, playSuccessSound } from '@/utils/sounds';
 import type { Player } from '@/types/game';
 
 interface ScoringScreenProps {
@@ -58,9 +59,12 @@ const ScoringScreen = ({
               {players.map((player) => (
                 <Button
                   key={player.id}
-                  onClick={() => onSelectWinner(player.id)}
+                  onClick={() => {
+                    playSuccessSound();
+                    onSelectWinner(player.id);
+                  }}
                   variant="outline"
-                  className="h-16 text-left justify-start hover:bg-accent/10 hover:border-accent transition-all duration-300"
+                  className="h-16 text-left justify-start hover:bg-accent/10 hover:border-accent hover:text-foreground transition-all duration-300"
                 >
                   <div className="flex items-center gap-4 w-full">
                     <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold">
@@ -124,7 +128,10 @@ const ScoringScreen = ({
         {/* Continue Button */}
         <div className="text-center">
           <Button
-            onClick={onNextRound}
+            onClick={() => {
+              playClickSound();
+              onNextRound();
+            }}
             size="lg"
             className="h-16 px-12 text-xl bg-gradient-primary hover:shadow-glow transition-all duration-300"
           >

@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Eye, BookOpen, Trophy } from 'lucide-react';
+import { playSuccessSound } from '@/utils/sounds';
 import type { DudenWord, Player } from '@/types/game';
 
 interface GameMasterScreenProps {
@@ -118,12 +119,15 @@ const GameMasterScreen = ({
         {/* Solved Button */}
         <div className="text-center">
           <Button
-            onClick={onWordSolved}
+            onClick={() => {
+              playSuccessSound();
+              onWordSolved();
+            }}
             size="lg"
             className="h-16 px-12 text-xl bg-gradient-success hover:shadow-glow transition-all duration-300"
           >
             <CheckCircle className="w-8 h-8 mr-4" />
-            ✅ Gelöst! Punkte vergeben
+            Gelöst! Punkte vergeben ✅
           </Button>
         </div>
       </div>

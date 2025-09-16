@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Play, Users, X } from 'lucide-react';
+import { playClickSound } from '@/utils/sounds';
 import type { Player } from '@/types/game';
 
 interface PlayerSetupProps {
@@ -17,6 +18,7 @@ const PlayerSetup = ({ players, onAddPlayer, onRemovePlayer, onStartGame }: Play
 
   const handleAddPlayer = () => {
     if (newPlayerName.trim() && newPlayerName.length >= 2) {
+      playClickSound();
       onAddPlayer(newPlayerName.trim());
       setNewPlayerName('');
     }
@@ -87,7 +89,10 @@ const PlayerSetup = ({ players, onAddPlayer, onRemovePlayer, onStartGame }: Play
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => onRemovePlayer(player.id)}
+                        onClick={() => {
+                          playClickSound();
+                          onRemovePlayer(player.id);
+                        }}
                         className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       >
                         <X className="w-4 h-4" />
@@ -100,7 +105,10 @@ const PlayerSetup = ({ players, onAddPlayer, onRemovePlayer, onStartGame }: Play
 
             <div className="pt-4 border-t">
               <Button
-                onClick={onStartGame}
+                onClick={() => {
+                  playClickSound();
+                  onStartGame();
+                }}
                 disabled={players.length < 2}
                 className="w-full h-14 text-lg bg-gradient-success hover:shadow-glow transition-all duration-300 disabled:opacity-50"
               >
