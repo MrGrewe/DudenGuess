@@ -85,7 +85,7 @@ const Index = () => {
         >
           Neues Spiel starten
         </button>
-        <p className="mt-4 text-xs font-semibold bg-gradient-primary bg-clip-text text-transparent">© Marvin Grewe</p>
+        <p className="mt-4 text-xs text-muted-foreground">© Marvin Grewe</p>
       </div>
     </div>
   );
