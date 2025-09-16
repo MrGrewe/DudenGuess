@@ -11,6 +11,7 @@ interface ScoringScreenProps {
   onNextRound: () => void;
   currentRound: number;
   lastWord: string;
+  selectedWinner: string | null;
 }
 
 const ScoringScreen = ({ 
@@ -18,7 +19,8 @@ const ScoringScreen = ({
   onSelectWinner, 
   onNextRound, 
   currentRound,
-  lastWord 
+  lastWord,
+  selectedWinner
 }: ScoringScreenProps) => {
   return (
     <div className="min-h-screen bg-gradient-warm p-4">
@@ -60,11 +62,15 @@ const ScoringScreen = ({
                 <Button
                   key={player.id}
                   onClick={() => {
-                    playSuccessSound();
+                    playClickSound();
                     onSelectWinner(player.id);
                   }}
-                  variant="outline"
-                  className="h-16 text-left justify-start hover:bg-accent/10 hover:border-accent hover:text-foreground transition-all duration-300"
+                  variant={selectedWinner === player.id ? "default" : "outline"}
+                  className={`h-16 text-left justify-start transition-all duration-300 ${
+                    selectedWinner === player.id 
+                      ? "bg-accent text-accent-foreground border-accent" 
+                      : "hover:bg-accent/10 hover:border-accent hover:text-foreground"
+                  }`}
                 >
                   <div className="flex items-center gap-4 w-full">
                     <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold">
@@ -77,7 +83,7 @@ const ScoringScreen = ({
                       </div>
                     </div>
                     <div className="text-accent font-bold">
-                      +100 Punkte
+                      {selectedWinner === player.id ? "✓ Ausgewählt" : "+100 Punkte"}
                     </div>
                   </div>
                 </Button>
@@ -136,7 +142,7 @@ const ScoringScreen = ({
             className="h-12 sm:h-14 md:h-16 px-6 sm:px-10 md:px-12 text-base sm:text-lg md:text-xl bg-gradient-primary hover:shadow-glow transition-all duration-300"
           >
             <ArrowRight className="w-8 h-8 mr-4" />
-            Nächste Runde
+            {selectedWinner ? "Punkte vergeben & Nächste Runde" : "Nächste Runde (ohne Punkte)"}
           </Button>
         </div>
       </div>

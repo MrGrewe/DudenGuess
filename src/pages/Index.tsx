@@ -10,7 +10,7 @@ const Index = () => {
     removePlayer,
     startGame,
     startScoring,
-    awardPoints,
+    selectWinner,
     nextRound,
     resetGame
   } = useGame();
@@ -18,7 +18,7 @@ const Index = () => {
   const currentGameMaster = gameData.players.find(p => p.id === gameData.gameMasterId);
 
   const handleSelectWinner = (playerId: string) => {
-    awardPoints(playerId);
+    selectWinner(playerId);
   };
 
   if (gameData.gameState === 'setup') {
@@ -52,6 +52,7 @@ const Index = () => {
         onNextRound={nextRound}
         currentRound={gameData.currentRound}
         lastWord={gameData.currentWord.word}
+        selectedWinner={gameData.selectedWinner}
       />
     );
   }

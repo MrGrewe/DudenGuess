@@ -17,4 +17,5 @@ export interface GameData {
   gameState: GameState;
   currentWord: DudenWord | null;
   gameMasterId: string | null;
+  selectedWinner: string | null;
 }

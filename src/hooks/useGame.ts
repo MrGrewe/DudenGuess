@@ -1239,7 +1239,8 @@ export const useGame = () => {
     currentRound: 1,
     gameState: 'setup',
     currentWord: null,
-    gameMasterId: null
+    gameMasterId: null,
+    selectedWinner: null
   });
 
   const [usedWords, setUsedWords] = useState<Set<string>>(new Set());
@@ -1297,22 +1298,31 @@ export const useGame = () => {
   const startScoring = useCallback(() => {
     setGameData(prev => ({
       ...prev,
-      gameState: 'scoring'
+      gameState: 'scoring',
+      selectedWinner: null
     }));
   }, []);
 
-  const awardPoints = useCallback((playerId: string) => {
+  const selectWinner = useCallback((playerId: string) => {
     setGameData(prev => ({
       ...prev,
-      players: prev.players.map(player =>
-        player.id === playerId
-          ? { ...player, score: player.score + 100 }
-          : player
-      )
+      selectedWinner: playerId
     }));
   }, []);
 
   const nextRound = useCallback(() => {
+    // Award points to selected winner if any
+    if (gameData.selectedWinner) {
+      setGameData(prev => ({
+        ...prev,
+        players: prev.players.map(player =>
+          player.id === prev.selectedWinner
+            ? { ...player, score: player.score + 100 }
+            : player
+        )
+      }));
+    }
+    
     // Select new random game master (different from current one if possible)
     const otherPlayers = gameData.players.filter(p => p.id !== gameData.gameMasterId);
     const newGameMaster = otherPlayers.length > 0 
@@ -1327,9 +1337,10 @@ export const useGame = () => {
       currentRound: prev.currentRound + 1,
       gameState: 'playing',
       currentWord: newWord,
-      gameMasterId: newGameMaster.id
+      gameMasterId: newGameMaster.id,
+      selectedWinner: null
     }));
-  }, [gameData.players, gameData.gameMasterId, getRandomWord]);
+  }, [gameData.players, gameData.gameMasterId, gameData.selectedWinner, getRandomWord]);
 
   const resetGame = useCallback(() => {
     setGameData({
@@ -1337,7 +1348,8 @@ export const useGame = () => {
       currentRound: 1,
       gameState: 'setup',
       currentWord: null,
-      gameMasterId: null
+      gameMasterId: null,
+      selectedWinner: null
     });
     setUsedWords(new Set());
   }, []);
@@ -1348,7 +1360,7 @@ export const useGame = () => {
     removePlayer,
     startGame,
     startScoring,
-    awardPoints,
+    selectWinner,
     nextRound,
     resetGame
   };
