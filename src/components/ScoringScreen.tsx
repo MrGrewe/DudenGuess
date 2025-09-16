@@ -83,7 +83,7 @@ const ScoringScreen = ({
                       </div>
                     </div>
                     <div className="text-accent font-bold">
-                      {selectedWinner === player.id ? "✓ Ausgewählt" : "+100 Punkte"}
+                      {selectedWinner === player.id ? "✓ Ausgewählt" : ""}
                     </div>
                   </div>
                 </Button>
