@@ -9,7 +9,7 @@ export interface DudenWord {
   definition: string;
 }
 
-export type GameState = 'setup' | 'reveal' | 'playing' | 'scoring';
+export type GameState = 'setup' | 'playing' | 'scoring' | 'finished';
 
 export interface GameData {
   players: Player[];
@@ -18,4 +18,6 @@ export interface GameData {
   currentWord: DudenWord | null;
   gameMasterId: string | null;
   selectedWinner: string | null;
+  totalRounds: number; // gewünschte Anzahl Runden insgesamt
+  isWordRevealed: boolean; // nur für Runde 1 relevant
 }

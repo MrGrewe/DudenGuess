@@ -11,6 +11,8 @@ interface GameMasterScreenProps {
   players: Player[];
   onWordSolved: () => void;
   gameMaster: Player | null;
+  isWordRevealed?: boolean;
+  onRevealWord?: () => void;
 }
 
 const GameMasterScreen = ({ 
@@ -18,7 +20,9 @@ const GameMasterScreen = ({
   currentRound, 
   players, 
   onWordSolved,
-  gameMaster 
+  gameMaster,
+  isWordRevealed = true,
+  onRevealWord
 }: GameMasterScreenProps) => {
   return (
     <div className="min-h-screen bg-gradient-warm p-4">
@@ -74,10 +78,15 @@ const GameMasterScreen = ({
             </CardTitle>
           </CardHeader>
           <CardContent className="p-8">
-            <div className="text-center">
-              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground bg-quiz/10 p-6 rounded-xl border-2 border-dashed border-quiz/30">
+            <div className="text-center space-y-4">
+              <div className={`text-2xl sm:text-3xl md:text-4xl font-bold text-foreground bg-quiz/10 p-6 rounded-xl border-2 border-dashed border-quiz/30 ${!isWordRevealed ? 'blur-sm select-none' : ''}`}>
                 {currentWord.word}
               </div>
+              {!isWordRevealed && (
+                <Button onClick={onRevealWord} variant="secondary" className="mx-auto">
+                  Aufdecken
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>

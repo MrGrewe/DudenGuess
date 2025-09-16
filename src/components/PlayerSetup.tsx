@@ -11,10 +11,13 @@ interface PlayerSetupProps {
   onAddPlayer: (name: string) => void;
   onRemovePlayer: (id: string) => void;
   onStartGame: () => void;
+  onSetTotalRounds?: (rounds: number) => void;
+  totalRounds?: number;
 }
 
-const PlayerSetup = ({ players, onAddPlayer, onRemovePlayer, onStartGame }: PlayerSetupProps) => {
+const PlayerSetup = ({ players, onAddPlayer, onRemovePlayer, onStartGame, onSetTotalRounds, totalRounds = 5 }: PlayerSetupProps) => {
   const [newPlayerName, setNewPlayerName] = useState('');
+  const [roundsInput, setRoundsInput] = useState<number>(totalRounds);
 
   const handleAddPlayer = () => {
     if (newPlayerName.trim() && newPlayerName.length >= 2) {
@@ -66,6 +69,28 @@ const PlayerSetup = ({ players, onAddPlayer, onRemovePlayer, onStartGame }: Play
               >
                 <Plus className="w-5 h-5 mr-2" />
                 Hinzufügen
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+              <div className="col-span-2">
+                <label className="block text-sm text-muted-foreground mb-1">Anzahl Runden</label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={roundsInput}
+                  onChange={(e) => setRoundsInput(Number(e.target.value))}
+                  onBlur={() => onSetTotalRounds?.(roundsInput)}
+                  className="text-base sm:text-lg h-12"
+                />
+              </div>
+              <Button
+                onClick={() => onSetTotalRounds?.(roundsInput)}
+                className="h-12 bg-secondary hover:bg-secondary/80"
+                type="button"
+              >
+                Runden setzen
               </Button>
             </div>
 

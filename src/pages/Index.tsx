@@ -1,8 +1,8 @@
 import { useGame } from '@/hooks/useGame';
 import PlayerSetup from '@/components/PlayerSetup';
 import GameMasterScreen from '@/components/GameMasterScreen';
-import GameMasterReveal from '@/components/GameMasterReveal';
 import ScoringScreen from '@/components/ScoringScreen';
+import FinalScoreScreen from '@/components/FinalScoreScreen';
 
 const Index = () => {
   const {
@@ -13,7 +13,9 @@ const Index = () => {
     startScoring,
     selectWinner,
     nextRound,
-    resetGame
+    resetGame,
+    setTotalRounds,
+    revealWord
   } = useGame();
 
   const currentGameMaster = gameData.players.find(p => p.id === gameData.gameMasterId);
@@ -29,6 +31,8 @@ const Index = () => {
         onAddPlayer={addPlayer}
         onRemovePlayer={removePlayer}
         onStartGame={startGame}
+        onSetTotalRounds={setTotalRounds}
+        totalRounds={gameData.totalRounds}
       />
     );
   }
@@ -41,15 +45,18 @@ const Index = () => {
         players={gameData.players}
         onWordSolved={startScoring}
         gameMaster={currentGameMaster || null}
+        isWordRevealed={gameData.isWordRevealed}
+        onRevealWord={revealWord}
       />
     );
   }
 
-  if (gameData.gameState === 'reveal') {
+  if (gameData.gameState === 'finished') {
     return (
-      <GameMasterReveal
-        gameMaster={currentGameMaster || null}
-        onContinue={revealContinue}
+      <FinalScoreScreen
+        players={gameData.players}
+        totalRounds={gameData.totalRounds}
+        onRestart={resetGame}
       />
     );
   }

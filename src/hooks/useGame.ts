@@ -1240,7 +1240,9 @@ export const useGame = () => {
     gameState: 'setup',
     currentWord: null,
     gameMasterId: null,
-    selectedWinner: null
+    selectedWinner: null,
+    totalRounds: 5,
+    isWordRevealed: false
   });
 
   const [usedWords, setUsedWords] = useState<Set<string>>(new Set());
@@ -1284,11 +1286,15 @@ export const useGame = () => {
     const randomIndex = Math.floor(Math.random() * gameData.players.length);
     const gameMaster = gameData.players[randomIndex];
     
+    const newWord = getRandomWord();
+    setUsedWords(prev => new Set([...prev, newWord.word]));
+    
     setGameData(prev => ({
       ...prev,
-      gameState: 'reveal',
-      currentWord: null,
-      gameMasterId: gameMaster.id
+      gameState: 'playing',
+      currentWord: newWord,
+      gameMasterId: gameMaster.id,
+      isWordRevealed: prev.currentRound > 1 // in Runde 1 ist false, ab Runde 2 direkt sichtbar
     }));
   }, [gameData.players, getRandomWord]);
 
@@ -1299,17 +1305,6 @@ export const useGame = () => {
       selectedWinner: null
     }));
   }, []);
-
-  const revealContinue = useCallback(() => {
-    const newWord = getRandomWord();
-    setUsedWords(prev => new Set([...prev, newWord.word]));
-
-    setGameData(prev => ({
-      ...prev,
-      gameState: 'playing',
-      currentWord: newWord
-    }));
-  }, [getRandomWord]);
 
   const selectWinner = useCallback((playerId: string) => {
     setGameData(prev => ({
@@ -1331,21 +1326,34 @@ export const useGame = () => {
       }));
     }
     
+    // Spiel beenden, wenn gewünschte Anzahl erreicht
+    if (gameData.currentRound >= gameData.totalRounds) {
+      setGameData(prev => ({
+        ...prev,
+        gameState: 'finished'
+      }));
+      return;
+    }
+
     // Select new random game master (different from current one if possible)
     const otherPlayers = gameData.players.filter(p => p.id !== gameData.gameMasterId);
     const newGameMaster = otherPlayers.length > 0 
       ? otherPlayers[Math.floor(Math.random() * otherPlayers.length)]
       : gameData.players[Math.floor(Math.random() * gameData.players.length)];
     
+    const newWord = getRandomWord();
+    setUsedWords(prev => new Set([...prev, newWord.word]));
+    
     setGameData(prev => ({
       ...prev,
       currentRound: prev.currentRound + 1,
-      gameState: 'reveal',
-      currentWord: null,
+      gameState: 'playing',
+      currentWord: newWord,
       gameMasterId: newGameMaster.id,
-      selectedWinner: null
+      selectedWinner: null,
+      isWordRevealed: true
     }));
-  }, [gameData.players, gameData.gameMasterId, gameData.selectedWinner]);
+  }, [gameData.players, gameData.gameMasterId, gameData.selectedWinner, gameData.currentRound, gameData.totalRounds, getRandomWord]);
 
   const resetGame = useCallback(() => {
     setGameData({
@@ -1354,9 +1362,19 @@ export const useGame = () => {
       gameState: 'setup',
       currentWord: null,
       gameMasterId: null,
-      selectedWinner: null
+      selectedWinner: null,
+      totalRounds: 5,
+      isWordRevealed: false
     });
     setUsedWords(new Set());
+  }, []);
+
+  const setTotalRounds = useCallback((rounds: number) => {
+    setGameData(prev => ({ ...prev, totalRounds: Math.max(1, Math.floor(rounds)) }));
+  }, []);
+
+  const revealWord = useCallback(() => {
+    setGameData(prev => ({ ...prev, isWordRevealed: true }));
   }, []);
 
   return {
@@ -1364,10 +1382,11 @@ export const useGame = () => {
     addPlayer,
     removePlayer,
     startGame,
-    revealContinue,
     startScoring,
     selectWinner,
     nextRound,
-    resetGame
+    resetGame,
+    setTotalRounds,
+    revealWord
   };
 };
