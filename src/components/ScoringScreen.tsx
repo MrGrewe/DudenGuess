@@ -39,7 +39,7 @@ const ScoringScreen = ({
           <CardContent className="p-6">
             <div className="text-center">
               <p className="text-muted-foreground mb-2">Das gesuchte Wort war:</p>
-              <div className="text-3xl font-bold text-foreground bg-accent/10 py-4 px-6 rounded-xl">
+              <div className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground bg-accent/10 py-4 px-6 rounded-xl">
                 "{lastWord}"
               </div>
             </div>
@@ -71,7 +71,7 @@ const ScoringScreen = ({
                       {player.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1">
-                      <div className="font-semibold text-lg">{player.name}</div>
+                      <div className="font-semibold text-base sm:text-lg">{player.name}</div>
                       <div className="text-sm text-muted-foreground">
                         Aktueller Punktestand: {player.score}
                       </div>
@@ -113,7 +113,7 @@ const ScoringScreen = ({
                     }`}>
                       {index + 1}
                     </div>
-                    <span className="font-medium">{player.name}</span>
+                    <span className="font-medium text-base sm:text-lg">{player.name}</span>
                     {index === 0 && <Trophy className="w-4 h-4 ml-2" />}
                   </div>
                   <Badge variant={index === 0 ? 'secondary' : 'default'}>
@@ -133,7 +133,7 @@ const ScoringScreen = ({
               onNextRound();
             }}
             size="lg"
-            className="h-16 px-12 text-xl bg-gradient-primary hover:shadow-glow transition-all duration-300"
+            className="h-12 sm:h-14 md:h-16 px-6 sm:px-10 md:px-12 text-base sm:text-lg md:text-xl bg-gradient-primary hover:shadow-glow transition-all duration-300"
           >
             <ArrowRight className="w-8 h-8 mr-4" />
             Nächste Runde

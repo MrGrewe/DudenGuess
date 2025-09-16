@@ -34,11 +34,11 @@ const PlayerSetup = ({ players, onAddPlayer, onRemovePlayer, onStartGame }: Play
     <div className="min-h-screen bg-gradient-warm flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl shadow-soft">
         <CardHeader className="text-center bg-gradient-primary text-white rounded-t-lg">
-          <CardTitle className="text-3xl font-bold flex items-center justify-center gap-3">
-            <span className="text-4xl">🧠</span>
+          <CardTitle className="text-xl sm:text-2xl md:text-3xl font-bold flex items-center justify-center gap-3">
+            <span className="text-2xl sm:text-3xl md:text-4xl">🧠</span>
             DudenGuess
           </CardTitle>
-          <p className="text-primary-foreground/80 text-lg">
+          <p className="text-primary-foreground/80 text-base sm:text-lg">
             Das ultimative Duden-Ratespiel
           </p>
         </CardHeader>
@@ -47,7 +47,7 @@ const PlayerSetup = ({ players, onAddPlayer, onRemovePlayer, onStartGame }: Play
           <div className="space-y-6">
             <div className="flex items-center gap-2 text-foreground mb-4">
               <Users className="w-5 h-5 text-primary" />
-              <h2 className="text-xl font-semibold">Spieler hinzufügen</h2>
+              <h2 className="text-lg sm:text-xl font-semibold">Spieler hinzufügen</h2>
             </div>
             
             <div className="flex gap-3">
@@ -56,7 +56,7 @@ const PlayerSetup = ({ players, onAddPlayer, onRemovePlayer, onStartGame }: Play
                 value={newPlayerName}
                 onChange={(e) => setNewPlayerName(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="flex-1 text-lg h-12"
+                className="flex-1 text-base sm:text-lg h-12"
                 maxLength={20}
               />
               <Button 
@@ -110,7 +110,7 @@ const PlayerSetup = ({ players, onAddPlayer, onRemovePlayer, onStartGame }: Play
                   onStartGame();
                 }}
                 disabled={players.length < 2}
-                className="w-full h-14 text-lg bg-gradient-success hover:shadow-glow transition-all duration-300 disabled:opacity-50"
+                className="w-full h-12 sm:h-14 text-base sm:text-lg bg-gradient-success hover:shadow-glow transition-all duration-300 disabled:opacity-50"
               >
                 <Play className="w-6 h-6 mr-3" />
                 🎮 Spiel starten

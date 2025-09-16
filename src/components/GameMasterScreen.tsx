@@ -56,7 +56,7 @@ const GameMasterScreen = ({
             </CardTitle>
           </CardHeader>
           <CardContent className="p-8">
-            <div className="text-xl leading-relaxed text-foreground bg-secondary/30 p-6 rounded-lg border-l-4 border-primary">
+            <div className="text-base sm:text-lg md:text-xl leading-relaxed text-foreground bg-secondary/30 p-6 rounded-lg border-l-4 border-primary">
               "{currentWord.definition}"
             </div>
           </CardContent>
@@ -75,7 +75,7 @@ const GameMasterScreen = ({
           </CardHeader>
           <CardContent className="p-8">
             <div className="text-center">
-              <div className="text-4xl font-bold text-foreground bg-quiz/10 p-6 rounded-xl border-2 border-dashed border-quiz/30">
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground bg-quiz/10 p-6 rounded-xl border-2 border-dashed border-quiz/30">
                 {currentWord.word}
               </div>
             </div>
@@ -124,7 +124,7 @@ const GameMasterScreen = ({
               onWordSolved();
             }}
             size="lg"
-            className="h-16 px-12 text-xl bg-gradient-success hover:shadow-glow transition-all duration-300"
+            className="h-12 sm:h-14 md:h-16 px-6 sm:px-10 md:px-12 text-base sm:text-lg md:text-xl bg-gradient-success hover:shadow-glow transition-all duration-300"
           >
             <CheckCircle className="w-8 h-8 mr-4" />
             Gelöst! Punkte vergeben ✅
