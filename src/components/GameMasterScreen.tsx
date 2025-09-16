@@ -79,7 +79,7 @@ const GameMasterScreen = ({
           </CardHeader>
           <CardContent className="p-8">
             <div className="text-center space-y-4">
-              <div className={`text-2xl sm:text-3xl md:text-4xl font-bold text-foreground bg-quiz/10 p-6 rounded-xl border-2 border-dashed border-quiz/30 ${!isWordRevealed ? 'blur-sm select-none' : ''}`}>
+              <div className={`text-2xl sm:text-3xl md:text-4xl font-bold text-foreground bg-quiz/10 p-6 rounded-xl border-2 border-dashed border-quiz/30 ${!isWordRevealed ? 'blur-md select-none' : ''}`}>
                 {currentWord.word}
               </div>
               {!isWordRevealed && (

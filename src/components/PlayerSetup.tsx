@@ -72,26 +72,20 @@ const PlayerSetup = ({ players, onAddPlayer, onRemovePlayer, onStartGame, onSetT
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
-              <div className="col-span-2">
-                <label className="block text-sm text-muted-foreground mb-1">Anzahl Runden</label>
-                <Input
-                  type="number"
-                  min={1}
-                  max={50}
-                  value={roundsInput}
-                  onChange={(e) => setRoundsInput(Number(e.target.value))}
-                  onBlur={() => onSetTotalRounds?.(roundsInput)}
-                  className="text-base sm:text-lg h-12"
-                />
-              </div>
-              <Button
-                onClick={() => onSetTotalRounds?.(roundsInput)}
-                className="h-12 bg-secondary hover:bg-secondary/80"
-                type="button"
-              >
-                Runden setzen
-              </Button>
+            <div className="space-y-2">
+              <label className="block text-sm text-muted-foreground">Anzahl Runden</label>
+              <Input
+                type="number"
+                min={1}
+                max={50}
+                value={roundsInput}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  setRoundsInput(value);
+                  onSetTotalRounds?.(value);
+                }}
+                className="text-base sm:text-lg h-12"
+              />
             </div>
 
             {players.length > 0 && (
