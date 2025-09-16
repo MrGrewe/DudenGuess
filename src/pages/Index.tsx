@@ -1,11 +1,72 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useGame } from '@/hooks/useGame';
+import PlayerSetup from '@/components/PlayerSetup';
+import GameMasterScreen from '@/components/GameMasterScreen';
+import ScoringScreen from '@/components/ScoringScreen';
 
 const Index = () => {
+  const {
+    gameData,
+    addPlayer,
+    removePlayer,
+    startGame,
+    startScoring,
+    awardPoints,
+    nextRound,
+    resetGame
+  } = useGame();
+
+  const currentGameMaster = gameData.players.find(p => p.id === gameData.gameMasterId);
+
+  const handleSelectWinner = (playerId: string) => {
+    awardPoints(playerId);
+  };
+
+  if (gameData.gameState === 'setup') {
+    return (
+      <PlayerSetup
+        players={gameData.players}
+        onAddPlayer={addPlayer}
+        onRemovePlayer={removePlayer}
+        onStartGame={startGame}
+      />
+    );
+  }
+
+  if (gameData.gameState === 'playing' && gameData.currentWord) {
+    return (
+      <GameMasterScreen
+        currentWord={gameData.currentWord}
+        currentRound={gameData.currentRound}
+        players={gameData.players}
+        onWordSolved={startScoring}
+        gameMaster={currentGameMaster || null}
+      />
+    );
+  }
+
+  if (gameData.gameState === 'scoring' && gameData.currentWord) {
+    return (
+      <ScoringScreen
+        players={gameData.players}
+        onSelectWinner={handleSelectWinner}
+        onNextRound={nextRound}
+        currentRound={gameData.currentRound}
+        lastWord={gameData.currentWord.word}
+      />
+    );
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+        <h1 className="mb-4 text-4xl font-bold">🧠 DudenGuess</h1>
+        <p className="text-xl text-muted-foreground mb-6">Das ultimative Duden-Ratespiel</p>
+        <button 
+          onClick={resetGame}
+          className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+        >
+          Neues Spiel starten
+        </button>
       </div>
     </div>
   );
