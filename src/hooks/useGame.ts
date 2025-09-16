@@ -1284,13 +1284,10 @@ export const useGame = () => {
     const randomIndex = Math.floor(Math.random() * gameData.players.length);
     const gameMaster = gameData.players[randomIndex];
     
-    const newWord = getRandomWord();
-    setUsedWords(prev => new Set([...prev, newWord.word]));
-    
     setGameData(prev => ({
       ...prev,
-      gameState: 'playing',
-      currentWord: newWord,
+      gameState: 'reveal',
+      currentWord: null,
       gameMasterId: gameMaster.id
     }));
   }, [gameData.players, getRandomWord]);
@@ -1302,6 +1299,17 @@ export const useGame = () => {
       selectedWinner: null
     }));
   }, []);
+
+  const revealContinue = useCallback(() => {
+    const newWord = getRandomWord();
+    setUsedWords(prev => new Set([...prev, newWord.word]));
+
+    setGameData(prev => ({
+      ...prev,
+      gameState: 'playing',
+      currentWord: newWord
+    }));
+  }, [getRandomWord]);
 
   const selectWinner = useCallback((playerId: string) => {
     setGameData(prev => ({
@@ -1329,18 +1337,15 @@ export const useGame = () => {
       ? otherPlayers[Math.floor(Math.random() * otherPlayers.length)]
       : gameData.players[Math.floor(Math.random() * gameData.players.length)];
     
-    const newWord = getRandomWord();
-    setUsedWords(prev => new Set([...prev, newWord.word]));
-    
     setGameData(prev => ({
       ...prev,
       currentRound: prev.currentRound + 1,
-      gameState: 'playing',
-      currentWord: newWord,
+      gameState: 'reveal',
+      currentWord: null,
       gameMasterId: newGameMaster.id,
       selectedWinner: null
     }));
-  }, [gameData.players, gameData.gameMasterId, gameData.selectedWinner, getRandomWord]);
+  }, [gameData.players, gameData.gameMasterId, gameData.selectedWinner]);
 
   const resetGame = useCallback(() => {
     setGameData({
@@ -1359,6 +1364,7 @@ export const useGame = () => {
     addPlayer,
     removePlayer,
     startGame,
+    revealContinue,
     startScoring,
     selectWinner,
     nextRound,

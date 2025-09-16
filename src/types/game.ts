@@ -9,7 +9,7 @@ export interface DudenWord {
   definition: string;
 }
 
-export type GameState = 'setup' | 'playing' | 'scoring';
+export type GameState = 'setup' | 'reveal' | 'playing' | 'scoring';
 
 export interface GameData {
   players: Player[];

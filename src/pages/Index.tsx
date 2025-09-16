@@ -1,6 +1,7 @@
 import { useGame } from '@/hooks/useGame';
 import PlayerSetup from '@/components/PlayerSetup';
 import GameMasterScreen from '@/components/GameMasterScreen';
+import GameMasterReveal from '@/components/GameMasterReveal';
 import ScoringScreen from '@/components/ScoringScreen';
 
 const Index = () => {
@@ -40,6 +41,15 @@ const Index = () => {
         players={gameData.players}
         onWordSolved={startScoring}
         gameMaster={currentGameMaster || null}
+      />
+    );
+  }
+
+  if (gameData.gameState === 'reveal') {
+    return (
+      <GameMasterReveal
+        gameMaster={currentGameMaster || null}
+        onContinue={revealContinue}
       />
     );
   }
