@@ -42,7 +42,7 @@ const PlayerSetup = ({ players, onAddPlayer, onRemovePlayer, onStartGame, onSetT
             DudenGuess
           </CardTitle>
           <p className="text-primary-foreground/80 text-base sm:text-lg">
-            Das ultimative Duden-Ratespiel
+            Das ultimative Duden-Ratespiel © Marvin Grewe
           </p>
         </CardHeader>
         
