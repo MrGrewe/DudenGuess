@@ -90,7 +90,7 @@ const DUDEN_WORDS: DudenWord[] = [
 { word: "Neuanfang", definition: "Start nach einem Ende oder einer Veränderung" },
 { word: "Vereinigung", definition: "Zusammenschluss mehrerer Teile zu einem Ganzen" },
 { word: "Spur", definition: "Anzeichen, das auf etwas Vergangenes hinweist" },
-{ word: "Erbe", definition: "Materielle oder immaterielle Hinterlassenschaft" }
+{ word: "Erbe", definition: "Materielle oder immaterielle Hinterlassenschaft" },
 { word: "Abgrund", definition: "Sehr tiefer, steiler Abfall oder schwerwiegende Situation" },
 { word: "Absicht", definition: "Geplanter Wille, etwas Bestimmtes zu tun" },
 { word: "Alltag", definition: "Täglicher Ablauf des Lebens" },
@@ -203,7 +203,7 @@ const DUDEN_WORDS: DudenWord[] = [
 { word: "Wunderwerk", definition: "Besonders beeindruckendes Werk oder Objekt" },
 { word: "Zeremonie", definition: "Feierlicher, geregelter Ablauf" },
 { word: "Zwielicht", definition: "Halbdunkel in der Dämmerung" },
-{ word: "Zyklus", definition: "Sich wiederholende Abfolge von Ereignissen" }
+{ word: "Zyklus", definition: "Sich wiederholende Abfolge von Ereignissen" },
 { word: "Abendrot", definition: "Rötliche Färbung des Himmels bei Sonnenuntergang" },
 { word: "Abschied", definition: "Trennung von Personen oder Orten" },
 { word: "Adler", definition: "Großer Greifvogel mit kräftigem Schnabel" },
