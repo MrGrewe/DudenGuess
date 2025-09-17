@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Play, Users, X } from 'lucide-react';
 import { playClickSound } from '@/utils/sounds';
 import type { Player } from '@/types/game';
+import type { GameMode } from '@/types/game';
 
 interface PlayerSetupProps {
   players: Player[];
@@ -13,9 +14,11 @@ interface PlayerSetupProps {
   onStartGame: () => void;
   onSetTotalRounds?: (rounds: number) => void;
   totalRounds?: number;
+  gameMode?: GameMode;
+  onSetGameMode?: (mode: GameMode) => void;
 }
 
-const PlayerSetup = ({ players, onAddPlayer, onRemovePlayer, onStartGame, onSetTotalRounds, totalRounds = 5 }: PlayerSetupProps) => {
+const PlayerSetup = ({ players, onAddPlayer, onRemovePlayer, onStartGame, onSetTotalRounds, totalRounds = 5, gameMode = 'normal', onSetGameMode }: PlayerSetupProps) => {
   const [newPlayerName, setNewPlayerName] = useState('');
   const [roundsInput, setRoundsInput] = useState<number>(totalRounds);
 
@@ -48,7 +51,7 @@ const PlayerSetup = ({ players, onAddPlayer, onRemovePlayer, onStartGame, onSetT
         
         <CardContent className="p-8">
           <div className="space-y-6">
-            <div className="flex items-center gap-2 text-foreground mb-4">
+            <div className="flex items-center gap-2 text-foreground mb-1">
               <Users className="w-5 h-5 text-primary" />
               <h2 className="text-lg sm:text-xl font-semibold">Spieler hinzufügen</h2>
             </div>
@@ -72,20 +75,43 @@ const PlayerSetup = ({ players, onAddPlayer, onRemovePlayer, onStartGame, onSetT
               </Button>
             </div>
 
-            <div className="space-y-2">
-              <label className="block text-sm text-muted-foreground">Anzahl Runden</label>
-              <Input
-                type="number"
-                min={1}
-                max={50}
-                value={roundsInput}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
-                  setRoundsInput(value);
-                  onSetTotalRounds?.(value);
-                }}
-                className="text-base sm:text-lg h-12"
-              />
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="block text-sm text-muted-foreground">Anzahl Runden</label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={roundsInput}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    setRoundsInput(value);
+                    onSetTotalRounds?.(value);
+                  }}
+                  className="text-base sm:text-lg h-12"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm text-muted-foreground">Spielmodus</label>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant={gameMode === 'normal' ? 'default' : 'secondary'}
+                    className="flex-1 h-12"
+                    onClick={() => onSetGameMode?.('normal')}
+                  >
+                    Normal
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={gameMode === 'trinkspiel' ? 'default' : 'secondary'}
+                    className="flex-1 h-12"
+                    onClick={() => onSetGameMode?.('trinkspiel')}
+                  >
+                    Trinkspiel 🍻
+                  </Button>
+                </div>
+              </div>
             </div>
 
             {players.length > 0 && (

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { Player, GameData, DudenWord, GameState } from '@/types/game';
+import type { Player, GameData, DudenWord, GameState, GameMode, DrinkEvent } from '@/types/game';
 
 // Extensive Duden words collection for the game
 const DUDEN_WORDS: DudenWord[] = [
@@ -152,8 +152,8 @@ const DUDEN_WORDS: DudenWord[] = [
     definition: "plötzlich aufkommende gute Idee"
   },
   {
-    word: "Herzensbrecher",
-    definition: "Mann, der viele Frauen unglücklich macht"
+    word: "Herzschmerz",
+    definition: "seelischer Schmerz, besonders durch Liebeskummer"
   },
   {
     word: "Sternstunde",
@@ -1233,6 +1233,29 @@ const DUDEN_WORDS: DudenWord[] = [
   }
 ];
 
+// Trinkspiel: vordefinierte Eventliste (leichtgewichtet)
+const DRINK_EVENTS: DrinkEvent[] = [
+  { id: 'shame-sip', name: 'Schluck der Schmach', description: 'Trinke 1–2 Schlucke; +1 Trostpunkt', type: 'solo', intensity: 1, rarity: 'common' },
+  { id: 'one-word', name: 'Ein-Wort-Erklärung', description: 'Nur 1 Wort erlaubt; fail 2 Schlucke, success +2 Punkte', type: 'rule', intensity: 2, rarity: 'common' },
+  { id: 'word-ban', name: 'Wortverbot', description: '„äh/also“ verboten; Verstoß = 1 Schluck', type: 'rule', intensity: 1, rarity: 'common' },
+  { id: 'rhyme-time', name: 'Rhyme Time', description: 'Erklärung muss reimen; fail alle 1 Schluck', type: 'team', intensity: 1, rarity: 'uncommon' },
+  { id: 'double-or-drink', name: 'Doppelt oder Schluck', description: 'Vorher entscheiden: doppelte Punkte oder 2 Schlucke', type: 'push', intensity: 2, rarity: 'uncommon' },
+  { id: 'leader-vs-all', name: 'Alle gegen den Leader', description: 'Nur Nicht‑Leader raten; Leader trinkt bei Fehlversuch', type: 'team', intensity: 1, rarity: 'rare' }
+];
+
+function pickWeightedPlayer(players: Player[], scoresById: Record<string, number>): Player | null {
+  if (players.length === 0) return null;
+  const maxScore = players.reduce((m, p) => Math.max(m, scoresById[p.id] ?? 0), 0);
+  const weights = players.map(p => 0.3 + Math.sqrt((maxScore - (scoresById[p.id] ?? 0)) + 1));
+  const sum = weights.reduce((a, b) => a + b, 0);
+  let r = Math.random() * sum;
+  for (let i = 0; i < players.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return players[i];
+  }
+  return players[players.length - 1];
+}
+
 export const useGame = () => {
   const [gameData, setGameData] = useState<GameData>({
     players: [],
@@ -1242,7 +1265,10 @@ export const useGame = () => {
     gameMasterId: null,
     selectedWinner: null,
     totalRounds: 5,
-    isWordRevealed: false
+    isWordRevealed: false,
+    gameMode: 'normal',
+    activeDrinkEvent: null,
+    activeDrinkEventTargetId: null
   });
 
   const [usedWords, setUsedWords] = useState<Set<string>>(new Set());
@@ -1267,6 +1293,11 @@ export const useGame = () => {
     }));
   }, []);
 
+  const setGameMode = useCallback((mode: GameMode) => {
+    // Moduswechsel nur im Setup zulassen
+    setGameData(prev => prev.gameState === 'setup' ? { ...prev, gameMode: mode } : prev);
+  }, []);
+
   const getRandomWord = useCallback((): DudenWord => {
     const availableWords = DUDEN_WORDS.filter(word => !usedWords.has(word.word));
     
@@ -1279,6 +1310,14 @@ export const useGame = () => {
     return availableWords[Math.floor(Math.random() * availableWords.length)];
   }, [usedWords]);
 
+  function computeDrinkEventForRound(nextRoundNumber: number, mode: GameMode | undefined, players: Player[], scoresById: Record<string, number>) {
+    if (mode !== 'trinkspiel') return { event: null as DrinkEvent | null, targetId: null as string | null };
+    if (nextRoundNumber % 2 !== 0) return { event: null, targetId: null };
+    const event = DRINK_EVENTS[Math.floor(Math.random() * DRINK_EVENTS.length)];
+    const target = pickWeightedPlayer(players, scoresById);
+    return { event, targetId: target ? target.id : null };
+  }
+
   const startGame = useCallback(() => {
     if (gameData.players.length < 2) return;
     
@@ -1288,15 +1327,20 @@ export const useGame = () => {
     
     const newWord = getRandomWord();
     setUsedWords(prev => new Set([...prev, newWord.word]));
+
+    const scoresById: Record<string, number> = Object.fromEntries(gameData.players.map(p => [p.id, p.score]));
+    const { event, targetId } = computeDrinkEventForRound(gameData.currentRound, gameData.gameMode, gameData.players, scoresById);
     
     setGameData(prev => ({
       ...prev,
       gameState: 'playing',
       currentWord: newWord,
       gameMasterId: gameMaster.id,
-      isWordRevealed: prev.currentRound > 1 // in Runde 1 ist false, ab Runde 2 direkt sichtbar
+      isWordRevealed: prev.currentRound > 1, // in Runde 1 ist false, ab Runde 2 direkt sichtbar
+      activeDrinkEvent: event,
+      activeDrinkEventTargetId: targetId
     }));
-  }, [gameData.players, getRandomWord]);
+  }, [gameData.players, gameData.currentRound, gameData.gameMode, getRandomWord]);
 
   const startScoring = useCallback(() => {
     setGameData(prev => ({
@@ -1343,6 +1387,10 @@ export const useGame = () => {
     
     const newWord = getRandomWord();
     setUsedWords(prev => new Set([...prev, newWord.word]));
+
+    const nextRoundNumber = gameData.currentRound + 1;
+    const scoresById: Record<string, number> = Object.fromEntries(gameData.players.map(p => [p.id, p.score]));
+    const { event, targetId } = computeDrinkEventForRound(nextRoundNumber, gameData.gameMode, gameData.players, scoresById);
     
     setGameData(prev => ({
       ...prev,
@@ -1351,9 +1399,11 @@ export const useGame = () => {
       currentWord: newWord,
       gameMasterId: newGameMaster.id,
       selectedWinner: null,
-      isWordRevealed: true
+      isWordRevealed: true,
+      activeDrinkEvent: event,
+      activeDrinkEventTargetId: targetId
     }));
-  }, [gameData.players, gameData.gameMasterId, gameData.selectedWinner, gameData.currentRound, gameData.totalRounds, getRandomWord]);
+  }, [gameData.players, gameData.gameMode, gameData.gameMasterId, gameData.selectedWinner, gameData.currentRound, gameData.totalRounds, getRandomWord]);
 
   const resetGame = useCallback(() => {
     setGameData({
@@ -1364,7 +1414,10 @@ export const useGame = () => {
       gameMasterId: null,
       selectedWinner: null,
       totalRounds: 5,
-      isWordRevealed: false
+      isWordRevealed: false,
+      gameMode: 'normal',
+      activeDrinkEvent: null,
+      activeDrinkEventTargetId: null
     });
     setUsedWords(new Set());
   }, []);
@@ -1387,6 +1440,7 @@ export const useGame = () => {
     nextRound,
     resetGame,
     setTotalRounds,
-    revealWord
+    revealWord,
+    setGameMode
   };
 };

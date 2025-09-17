@@ -1,9 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Eye, BookOpen, Trophy } from 'lucide-react';
+import { CheckCircle, Eye, BookOpen, Trophy, Beer } from 'lucide-react';
 import { playSuccessSound } from '@/utils/sounds';
-import type { DudenWord, Player } from '@/types/game';
+import type { DudenWord, Player, DrinkEvent, GameMode } from '@/types/game';
 
 interface GameMasterScreenProps {
   currentWord: DudenWord;
@@ -13,6 +13,9 @@ interface GameMasterScreenProps {
   gameMaster: Player | null;
   isWordRevealed?: boolean;
   onRevealWord?: () => void;
+  gameMode?: GameMode;
+  activeDrinkEvent?: DrinkEvent | null;
+  activeDrinkEventTargetId?: string | null;
 }
 
 const GameMasterScreen = ({ 
@@ -22,8 +25,12 @@ const GameMasterScreen = ({
   onWordSolved,
   gameMaster,
   isWordRevealed = true,
-  onRevealWord
+  onRevealWord,
+  gameMode = 'normal',
+  activeDrinkEvent,
+  activeDrinkEventTargetId
 }: GameMasterScreenProps) => {
+  const targetName = players.find(p => p.id === activeDrinkEventTargetId)?.name;
   return (
     <div className="min-h-screen bg-gradient-warm p-4">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -35,8 +42,31 @@ const GameMasterScreen = ({
             <Badge variant="secondary" className="ml-2">
               Runde {currentRound}
             </Badge>
+            {gameMode === 'trinkspiel' && (
+              <Badge className="ml-2 bg-amber-500 text-white">
+                <Beer className="w-4 h-4 mr-1" /> Trinkspiel
+              </Badge>
+            )}
           </div>
         </div>
+
+        {gameMode === 'trinkspiel' && activeDrinkEvent && (
+          <Card className="shadow-glow border-amber-300">
+            <CardHeader className="bg-amber-100 rounded-t-lg">
+              <CardTitle className="flex items-center gap-2 text-amber-800">
+                <Beer className="w-5 h-5" /> Trink-Event: {activeDrinkEvent.name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-5">
+              <div className="text-amber-900">
+                <div className="font-medium mb-1">{activeDrinkEvent.description}</div>
+                {targetName && (
+                  <div className="text-sm">Betroffen: <span className="font-semibold">{targetName}</span></div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Game Master Info */}
         {gameMaster && (

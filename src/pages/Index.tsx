@@ -15,7 +15,8 @@ const Index = () => {
     nextRound,
     resetGame,
     setTotalRounds,
-    revealWord
+    revealWord,
+    setGameMode
   } = useGame();
 
   const currentGameMaster = gameData.players.find(p => p.id === gameData.gameMasterId);
@@ -33,6 +34,8 @@ const Index = () => {
         onStartGame={startGame}
         onSetTotalRounds={setTotalRounds}
         totalRounds={gameData.totalRounds}
+        gameMode={gameData.gameMode}
+        onSetGameMode={setGameMode}
       />
     );
   }
@@ -47,6 +50,11 @@ const Index = () => {
         gameMaster={currentGameMaster || null}
         isWordRevealed={gameData.isWordRevealed}
         onRevealWord={revealWord}
+        {...({
+          gameMode: gameData.gameMode,
+          activeDrinkEvent: gameData.activeDrinkEvent,
+          activeDrinkEventTargetId: gameData.activeDrinkEventTargetId
+        } as any)}
       />
     );
   }
