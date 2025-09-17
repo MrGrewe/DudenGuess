@@ -53,7 +53,8 @@ const Index = () => {
         {...({
           gameMode: gameData.gameMode,
           activeDrinkEvent: gameData.activeDrinkEvent,
-          activeDrinkEventTargetId: gameData.activeDrinkEventTargetId
+          activeDrinkEventTargetId: gameData.activeDrinkEventTargetId,
+          activeDrinkEventAmount: gameData.activeDrinkEventAmount
         } as any)}
       />
     );

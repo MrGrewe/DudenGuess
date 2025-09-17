@@ -74,3 +74,40 @@ export const playWinSound = () => {
     createOsc('sawtooth', (n as any).f, finaleStart, 0.20, 0.08)
   );
 };
+
+// Drink event sounds
+export const playDrinkEventSound = () => {
+  const AC = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext;
+  const audioContext = new AC();
+  const osc = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(300, audioContext.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.18);
+  gain.gain.setValueAtTime(0.12, audioContext.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+  osc.connect(gain).connect(audioContext.destination);
+  osc.start();
+  osc.stop(audioContext.currentTime + 0.22);
+};
+
+export const playDistributeEventSound = () => {
+  const AC = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext;
+  const audioContext = new AC();
+  const mk = (f: number, t: number) => {
+    const o = audioContext.createOscillator();
+    const g = audioContext.createGain();
+    o.type = 'square';
+    o.frequency.setValueAtTime(f, audioContext.currentTime + t);
+    g.gain.setValueAtTime(0, audioContext.currentTime + t);
+    g.gain.linearRampToValueAtTime(0.12, audioContext.currentTime + t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + t + 0.15);
+    o.connect(g).connect(audioContext.destination);
+    o.start(audioContext.currentTime + t);
+    o.stop(audioContext.currentTime + t + 0.18);
+  };
+  // short percussive triad
+  mk(740, 0.0); // F#5
+  mk(880, 0.05); // A5
+  mk(988, 0.10); // B5
+};

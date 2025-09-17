@@ -1233,14 +1233,10 @@ const DUDEN_WORDS: DudenWord[] = [
   }
 ];
 
-// Trinkspiel: vordefinierte Eventliste (leichtgewichtet)
+// Trinkspiel: zwei einfache Events
 const DRINK_EVENTS: DrinkEvent[] = [
-  { id: 'shame-sip', name: 'Schluck der Schmach', description: 'Trinke 1–2 Schlucke; +1 Trostpunkt', type: 'solo', intensity: 1, rarity: 'common' },
-  { id: 'one-word', name: 'Ein-Wort-Erklärung', description: 'Nur 1 Wort erlaubt; fail 2 Schlucke, success +2 Punkte', type: 'rule', intensity: 2, rarity: 'common' },
-  { id: 'word-ban', name: 'Wortverbot', description: '„äh/also“ verboten; Verstoß = 1 Schluck', type: 'rule', intensity: 1, rarity: 'common' },
-  { id: 'rhyme-time', name: 'Rhyme Time', description: 'Erklärung muss reimen; fail alle 1 Schluck', type: 'team', intensity: 1, rarity: 'uncommon' },
-  { id: 'double-or-drink', name: 'Doppelt oder Schluck', description: 'Vorher entscheiden: doppelte Punkte oder 2 Schlucke', type: 'push', intensity: 2, rarity: 'uncommon' },
-  { id: 'leader-vs-all', name: 'Alle gegen den Leader', description: 'Nur Nicht‑Leader raten; Leader trinkt bei Fehlversuch', type: 'team', intensity: 1, rarity: 'rare' }
+  { id: 'random-player-drinks', name: 'Zufalls-Trinker', description: 'Ein Spieler trinkt 1–5 Schlücke', type: 'solo', intensity: 1, rarity: 'common' },
+  { id: 'leader-distributes', name: 'Leader verteilt', description: 'Der Leader verteilt 1–5 Schlücke', type: 'team', intensity: 1, rarity: 'common' }
 ];
 
 function pickWeightedPlayer(players: Player[], scoresById: Record<string, number>): Player | null {
@@ -1256,6 +1252,11 @@ function pickWeightedPlayer(players: Player[], scoresById: Record<string, number
   return players[players.length - 1];
 }
 
+function pickLeader(players: Player[], scoresById: Record<string, number>): Player | null {
+  if (players.length === 0) return null;
+  return players.slice().sort((a, b) => (scoresById[b.id] ?? 0) - (scoresById[a.id] ?? 0))[0] ?? null;
+}
+
 export const useGame = () => {
   const [gameData, setGameData] = useState<GameData>({
     players: [],
@@ -1268,7 +1269,8 @@ export const useGame = () => {
     isWordRevealed: false,
     gameMode: 'normal',
     activeDrinkEvent: null,
-    activeDrinkEventTargetId: null
+    activeDrinkEventTargetId: null,
+    activeDrinkEventAmount: null
   });
 
   const [usedWords, setUsedWords] = useState<Set<string>>(new Set());
@@ -1311,11 +1313,19 @@ export const useGame = () => {
   }, [usedWords]);
 
   function computeDrinkEventForRound(nextRoundNumber: number, mode: GameMode | undefined, players: Player[], scoresById: Record<string, number>) {
-    if (mode !== 'trinkspiel') return { event: null as DrinkEvent | null, targetId: null as string | null };
-    if (nextRoundNumber % 2 !== 0) return { event: null, targetId: null };
+    if (mode !== 'trinkspiel') return { event: null as DrinkEvent | null, targetId: null as string | null, amount: null as number | null };
+    if (nextRoundNumber % 2 !== 0) return { event: null, targetId: null, amount: null };
     const event = DRINK_EVENTS[Math.floor(Math.random() * DRINK_EVENTS.length)];
-    const target = pickWeightedPlayer(players, scoresById);
-    return { event, targetId: target ? target.id : null };
+    const amount = Math.floor(Math.random() * 5) + 1; // 1..5
+    let targetId: string | null = null;
+    if (event.id === 'random-player-drinks') {
+      const target = pickWeightedPlayer(players, scoresById);
+      targetId = target ? target.id : null;
+    } else if (event.id === 'leader-distributes') {
+      const leader = pickLeader(players, scoresById);
+      targetId = leader ? leader.id : null;
+    }
+    return { event, targetId, amount };
   }
 
   const startGame = useCallback(() => {
@@ -1329,7 +1339,7 @@ export const useGame = () => {
     setUsedWords(prev => new Set([...prev, newWord.word]));
 
     const scoresById: Record<string, number> = Object.fromEntries(gameData.players.map(p => [p.id, p.score]));
-    const { event, targetId } = computeDrinkEventForRound(gameData.currentRound, gameData.gameMode, gameData.players, scoresById);
+    const { event, targetId, amount } = computeDrinkEventForRound(gameData.currentRound, gameData.gameMode, gameData.players, scoresById);
     
     setGameData(prev => ({
       ...prev,
@@ -1338,7 +1348,8 @@ export const useGame = () => {
       gameMasterId: gameMaster.id,
       isWordRevealed: prev.currentRound > 1, // in Runde 1 ist false, ab Runde 2 direkt sichtbar
       activeDrinkEvent: event,
-      activeDrinkEventTargetId: targetId
+      activeDrinkEventTargetId: targetId,
+      activeDrinkEventAmount: amount
     }));
   }, [gameData.players, gameData.currentRound, gameData.gameMode, getRandomWord]);
 
@@ -1390,7 +1401,7 @@ export const useGame = () => {
 
     const nextRoundNumber = gameData.currentRound + 1;
     const scoresById: Record<string, number> = Object.fromEntries(gameData.players.map(p => [p.id, p.score]));
-    const { event, targetId } = computeDrinkEventForRound(nextRoundNumber, gameData.gameMode, gameData.players, scoresById);
+    const { event, targetId, amount } = computeDrinkEventForRound(nextRoundNumber, gameData.gameMode, gameData.players, scoresById);
     
     setGameData(prev => ({
       ...prev,
@@ -1401,7 +1412,8 @@ export const useGame = () => {
       selectedWinner: null,
       isWordRevealed: true,
       activeDrinkEvent: event,
-      activeDrinkEventTargetId: targetId
+      activeDrinkEventTargetId: targetId,
+      activeDrinkEventAmount: amount
     }));
   }, [gameData.players, gameData.gameMode, gameData.gameMasterId, gameData.selectedWinner, gameData.currentRound, gameData.totalRounds, getRandomWord]);
 
@@ -1417,7 +1429,8 @@ export const useGame = () => {
       isWordRevealed: false,
       gameMode: 'normal',
       activeDrinkEvent: null,
-      activeDrinkEventTargetId: null
+      activeDrinkEventTargetId: null,
+      activeDrinkEventAmount: null
     });
     setUsedWords(new Set());
   }, []);

@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Eye, BookOpen, Trophy, Beer } from 'lucide-react';
 import { playSuccessSound } from '@/utils/sounds';
+import { useEffect, useRef } from 'react';
+import { playDrinkEventSound, playDistributeEventSound } from '@/utils/sounds';
 import type { DudenWord, Player, DrinkEvent, GameMode } from '@/types/game';
 
 interface GameMasterScreenProps {
@@ -16,6 +18,7 @@ interface GameMasterScreenProps {
   gameMode?: GameMode;
   activeDrinkEvent?: DrinkEvent | null;
   activeDrinkEventTargetId?: string | null;
+  activeDrinkEventAmount?: number | null;
 }
 
 const GameMasterScreen = ({ 
@@ -28,9 +31,47 @@ const GameMasterScreen = ({
   onRevealWord,
   gameMode = 'normal',
   activeDrinkEvent,
-  activeDrinkEventTargetId
+  activeDrinkEventTargetId,
+  activeDrinkEventAmount
 }: GameMasterScreenProps) => {
   const targetName = players.find(p => p.id === activeDrinkEventTargetId)?.name;
+  const lastEventIdRef = useRef<string | null>(null);
+  const lastAmountRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    // Spiele Sound nur, wenn ein neues Event erscheint oder sich Menge ändert
+    if (!activeDrinkEvent || !activeDrinkEventAmount || gameMode !== 'trinkspiel') return;
+    const isNew = activeDrinkEvent.id !== lastEventIdRef.current || activeDrinkEventAmount !== lastAmountRef.current;
+    if (!isNew) return;
+    lastEventIdRef.current = activeDrinkEvent.id;
+    lastAmountRef.current = activeDrinkEventAmount;
+
+    if (activeDrinkEvent.id === 'random-player-drinks') {
+      playDrinkEventSound();
+    } else if (activeDrinkEvent.id === 'leader-distributes') {
+      playDistributeEventSound();
+    }
+  }, [activeDrinkEvent, activeDrinkEventAmount, gameMode]);
+
+  function renderDrinkEventText() {
+    if (!activeDrinkEvent || !activeDrinkEventAmount) return null;
+    if (activeDrinkEvent.id === 'random-player-drinks') {
+      return (
+        <div>
+          <span className="font-semibold">{targetName ?? 'Ein Spieler'}</span> trinkt <span className="font-semibold">{activeDrinkEventAmount}</span> Schluck{activeDrinkEventAmount === 1 ? '' : 'e'}.
+        </div>
+      );
+    }
+    if (activeDrinkEvent.id === 'leader-distributes') {
+      return (
+        <div>
+          <span className="font-semibold">{targetName ?? 'Der Leader'}</span> verteilt <span className="font-semibold">{activeDrinkEventAmount}</span> Schluck{activeDrinkEventAmount === 1 ? '' : 'e'}.
+        </div>
+      );
+    }
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-warm p-4">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -50,27 +91,24 @@ const GameMasterScreen = ({
           </div>
         </div>
 
-        {gameMode === 'trinkspiel' && activeDrinkEvent && (
+        {gameMode === 'trinkspiel' && activeDrinkEvent && activeDrinkEventAmount && (
           <Card className="shadow-glow border-amber-300">
             <CardHeader className="bg-amber-100 rounded-t-lg">
               <CardTitle className="flex items-center gap-2 text-amber-800">
-                <Beer className="w-5 h-5" /> Trink-Event: {activeDrinkEvent.name}
+                <Beer className="w-5 h-5" /> Trink-Event
               </CardTitle>
             </CardHeader>
             <CardContent className="p-5">
               <div className="text-amber-900">
-                <div className="font-medium mb-1">{activeDrinkEvent.description}</div>
-                {targetName && (
-                  <div className="text-sm">Betroffen: <span className="font-semibold">{targetName}</span></div>
-                )}
+                {renderDrinkEventText()}
               </div>
             </CardContent>
           </Card>
         )}
 
         {/* Game Master Info */}
-        {gameMaster && (
-          <Card className="bg-gradient-game text-white shadow-glow">
+        <Card className="bg-gradient-game text-white shadow-glow">
+          {gameMaster && (
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <Eye className="w-5 h-5" />
@@ -78,8 +116,8 @@ const GameMasterScreen = ({
                 <span className="font-bold">{gameMaster.name}</span>
               </div>
             </CardContent>
-          </Card>
-        )}
+          )}
+        </Card>
 
         {/* Definition Card */}
         <Card className="shadow-soft">

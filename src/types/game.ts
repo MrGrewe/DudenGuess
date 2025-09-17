@@ -38,4 +38,5 @@ export interface GameData {
   gameMode?: GameMode; // 'normal' default
   activeDrinkEvent?: DrinkEvent | null; // aktuelles Event falls Trinkspiel
   activeDrinkEventTargetId?: string | null; // wer ist betroffen
+  activeDrinkEventAmount?: number | null; // Schluckanzahl 1-5
 }
